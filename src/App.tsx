@@ -1,35 +1,144 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-
-function App() {
-  const [count, setCount] = useState(0)
-
+function NavBar() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div>
+      <h2>NavBar</h2>
+      <LogoIcon />
+      <SettingsButton />
+    </div>
+  );
 }
 
-export default App
+function LogoIcon() {
+  return (
+    <div>
+      <span></span>
+      <span>BrickLaiyer</span>
+    </div>
+  );
+}
+
+function SettingsButton() {
+  return (
+    <button>
+      <span>Settings</span>
+    </button>
+  );
+}
+
+function Main() {
+  return (
+    <div>
+      <InteractiveChatWindow />
+      <StoreMessagesCheckBox />
+      <SocialLinks />
+    </div>
+  );
+}
+
+function InteractiveChatWindow() {
+  return <PromptArea />;
+}
+
+function StoreMessagesCheckBox() {
+  return <input type="checkbox" name="" id="" />;
+}
+
+function SocialLinks() {
+  return (
+    <div>
+      <button>GitHub</button>
+      <button>Twitter</button>
+      <button>LinkedIn</button>
+    </div>
+  );
+}
+
+function PromptArea() {
+  return (
+    <div>
+      <GreetingText />
+      <PromptTextArea />
+      <PromptHistory />
+    </div>
+  );
+}
+
+function GreetingText() {
+  return (
+    <div>
+      <span>Bricks</span>
+      <h3>Good Evening, Sarki</h3>
+    </div>
+  );
+}
+
+function PromptTextArea() {
+  return (
+    <div>
+      <form action="">
+        <textarea name="" id="" cols={10} rows={10}>
+          Whats up!...
+        </textarea>
+        <PromptActions />
+        <button type="submit"></button>
+      </form>
+    </div>
+  );
+}
+
+function PromptActions() {
+  return (
+    <div>
+      <select name="" id=""></select>
+      <input type="file" name="" id="" />
+      <button>Prompts</button>
+      <button>Storage</button>
+    </div>
+  );
+}
+
+function PromptHistory() {
+  return (
+    <div>
+      <h4>History</h4>
+      <PromptHistoryList prompts={[]} />
+    </div>
+  );
+}
+
+function PromptHistoryList({
+  prompts,
+}: {
+  prompts: { id: string; text: string }[];
+}) {
+  const history = prompts.map((prompt) => (
+    <PromptHistoryItem key={prompt.id} prompt={prompt} />
+  ));
+  return (
+    <div>
+      <ul>{history}</ul>
+    </div>
+  );
+}
+
+function PromptHistoryItem({
+  prompt,
+}: {
+  prompt: { id: string; text: string };
+}) {
+  return (
+    <div>
+      <p>{prompt.text}</p>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <div className="App">
+      <NavBar />
+      <Main />
+    </div>
+  );
+}
+export default App;
