@@ -10,9 +10,10 @@ import Github from "./assets/github.svg?react";
 import LinkedIn from "./assets/linkedin.svg?react";
 import Twitter from "./assets/twitter.svg?react";
 import CheckMark from "./assets/check-mark.svg?react";
-import React, { useState, type JSX } from "react";
+import React, { useRef, useState, type JSX } from "react";
 import { models, type Model } from "./data/models";
 import ArrowRight from "./assets/arrow-right.svg?react";
+import UserFile from "./assets/UserFile";
 
 function NavBar() {
   return (
@@ -74,7 +75,7 @@ function InteractiveChatWindow() {
 function StoreMessagesCheckBox() {
   const [storeMessages, setStoreMessages] = useState(false);
   return (
-    <div className="inline-flex gap-3.5 mx-auto">
+    <div className="fixed inline-flex gap-3.5 left-[45%]">
       <button
         className="flex items-center justify-center size-5 rounded-sm border border-[#08CB00]"
         onClick={() => setStoreMessages(!storeMessages)}
@@ -107,6 +108,7 @@ function SocialLinks() {
 type PromptConfig = {
   query: string;
   model: string;
+  file?: File;
 };
 
 function PromptArea() {
@@ -159,31 +161,57 @@ function PromptTextBox({
   onChangeConfig: (config: PromptConfig) => void;
   addPrompt: (prompt: { id: string; text: string }) => void;
 }) {
+  const [fileSelected, setFileSelected] = useState(false);
+
   function handleChangePrompt(e: React.ChangeEvent<HTMLTextAreaElement>) {
     onChangeConfig({ ...promptOptions, query: e.target.value });
   }
 
   return (
-    <div className="mx-10 my-10 bg-[#222225] rounded-xl border-[0.2px] border-[#3d4437]">
-      <form action="">
-        <textarea
-          name="promptTextBox"
-          placeholder="Whats up..."
-          cols={2}
-          rows={2}
-          style={{ resize: "none" }}
-          onChange={(e) => handleChangePrompt(e)}
-          className={`w-[100%] h-20 font-firamono font-medium text-[16px] ${
-            promptOptions.query ? "text-white" : "text-[#717158]"
-          }  px-4 pt-5 outline-none`}
-        ></textarea>
-        <PromptActions
-          promptOptions={promptOptions}
-          onChangeConfig={onChangeConfig}
-          addPrompt={addPrompt}
-        />
-      </form>
-    </div>
+    <>
+      {fileSelected && (
+        <div className="flex items-center justify-start mx-10 my-10 h-32 bg-[#222225] mb-0 rounded-t-[9px] border border-dashed border-[#545e4c]">
+          <div className="flex p-10 items-center gap-10">
+            <UserFile
+              removeFile={() => {
+                onChangeConfig({ ...promptOptions });
+                setFileSelected(false);
+              }}
+            />
+            <span className="font-firacode text-[#94B280]">
+              {promptOptions.file ? promptOptions.file.name : "Error"}
+            </span>
+          </div>
+        </div>
+      )}
+      <div
+        className={`mx-10 ${
+          fileSelected
+            ? "mt-0 rounded-b-xl border border-t-0"
+            : "my-10 rounded-xl border-[0.2px]"
+        } bg-[#222225] border-[#3d4437]`}
+      >
+        <form action="">
+          <textarea
+            name="promptTextBox"
+            placeholder="Whats up..."
+            cols={2}
+            rows={2}
+            style={{ resize: "none" }}
+            onChange={(e) => handleChangePrompt(e)}
+            className={`w-[100%] h-20 font-firamono font-medium text-[16px] ${
+              promptOptions.query ? "text-white" : "text-[#717158]"
+            }  px-4 pt-5 outline-none`}
+          ></textarea>
+          <PromptActions
+            promptOptions={promptOptions}
+            onChangeConfig={onChangeConfig}
+            addPrompt={addPrompt}
+            onSelectFile={() => setFileSelected(true)}
+          />
+        </form>
+      </div>
+    </>
   );
 }
 
@@ -280,12 +308,28 @@ function SelectModelDropdown({
 function PromptActions({
   promptOptions,
   onChangeConfig,
+  onSelectFile,
   addPrompt,
 }: {
   promptOptions: PromptConfig;
   onChangeConfig: (config: PromptConfig) => void;
+  onSelectFile: () => void;
   addPrompt: (prompt: { id: string; text: string }) => void;
 }) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const selectFile = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    inputRef.current ? inputRef.current.click() : null;
+  };
+
+  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      onChangeConfig({ ...promptOptions, file: e.target.files[0] });
+      onSelectFile();
+    }
+  };
+
   return (
     <div className="flex flex-row justify-between mx-3 mb-2.5">
       <div className="flex gap-2.5">
@@ -293,8 +337,16 @@ function PromptActions({
           options={promptOptions}
           onChangeModel={onChangeConfig}
         />
-        <input type="file" name="" id="" style={{ display: "None" }} />
-        <button className="flex items-center justify-center rounded-md size-9 border border-[#94B280] hover:border-2 hover:border-[#08CB00]">
+        <input
+          type="file"
+          ref={inputRef}
+          style={{ display: "None" }}
+          onChange={handleFileSelected}
+        />
+        <button
+          className="flex items-center justify-center rounded-md size-9 border border-[#94B280] hover:border-2 hover:border-[#08CB00]"
+          onClick={(e) => selectFile(e)}
+        >
           <Clip />
         </button>
         <button className="flex items-center justify-center gap-3 w-[120px] rounded-[4px] hover:bg-[#2A2A2C]">
@@ -359,7 +411,7 @@ function PromptHistoryItem({
   prompt: { id: string; text: string };
 }) {
   return (
-    <div className="flex items-center p-3 mt-2.5 w-fit max-w-[300px] h-10 border border-dashed border-[#A4A0A0] rounded-[5px]">
+    <div className="flex items-center p-3 mt-2.5 w-fit max-w-[300px] h-10 border-[1.6px] border-dotted border-[#698555] rounded-md">
       <p className="font-jetbrains text-sm truncate mr-2.5">{prompt.text}</p>
       <span className="shrink-0">
         <ArrowRight />
