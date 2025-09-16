@@ -15,6 +15,8 @@ import { models, type Model } from "./data/models";
 import ArrowRight from "./assets/arrow-right.svg?react";
 import UserFile from "./assets/UserFile";
 
+import StoredMessages from "./components/StoredMessages";
+
 function NavBar() {
   return (
     <nav className="flex items-center h-[86px] justify-between py-8 px-6">
@@ -64,10 +66,17 @@ function Main() {
   );
 }
 
+type Window = "chat" | "messages" | "prompts";
+
 function InteractiveChatWindow() {
+  const [currentWindow, setCurrentWindow] = useState<Window>("chat");
   return (
     <div className="flex h-[90%] items-center justify-center">
-      <PromptArea />
+      {currentWindow === "chat" ? (
+        <PromptArea changeWindow={setCurrentWindow} />
+      ) : (
+        <StoredMessages />
+      )}
     </div>
   );
 }
@@ -111,7 +120,7 @@ type PromptConfig = {
   file?: File;
 };
 
-function PromptArea() {
+function PromptArea({ changeWindow }: { changeWindow: (arg: Window) => void }) {
   const [promptConfig, setPromptConfig] = useState({
     query: "",
     model: models[0].id,
@@ -132,6 +141,7 @@ function PromptArea() {
           promptOptions={promptConfig}
           onChangeConfig={setPromptConfig}
           addPrompt={handleAddPromptHistory}
+          changeWindow={changeWindow}
         />
         <PromptHistory history={promptHistory} />
       </div>
@@ -156,10 +166,12 @@ function PromptTextBox({
   promptOptions,
   onChangeConfig,
   addPrompt,
+  changeWindow,
 }: {
   promptOptions: PromptConfig;
   onChangeConfig: (config: PromptConfig) => void;
   addPrompt: (prompt: { id: string; text: string }) => void;
+  changeWindow: (arg: Window) => void;
 }) {
   const [fileSelected, setFileSelected] = useState(false);
 
@@ -208,6 +220,7 @@ function PromptTextBox({
             onChangeConfig={onChangeConfig}
             addPrompt={addPrompt}
             onSelectFile={() => setFileSelected(true)}
+            changeWindow={changeWindow}
           />
         </form>
       </div>
@@ -310,11 +323,13 @@ function PromptActions({
   onChangeConfig,
   onSelectFile,
   addPrompt,
+  changeWindow,
 }: {
   promptOptions: PromptConfig;
   onChangeConfig: (config: PromptConfig) => void;
   onSelectFile: () => void;
   addPrompt: (prompt: { id: string; text: string }) => void;
+  changeWindow: (arg: Window) => void;
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -355,7 +370,10 @@ function PromptActions({
           </span>
           <span className="font-firamono">Prompts</span>
         </button>
-        <button className="flex items-center justify-center gap-3 w-[120px] rounded-[4px] hover:bg-[#2A2A2C]">
+        <button
+          className="flex items-center justify-center gap-3 w-[120px] rounded-[4px] hover:bg-[#2A2A2C]"
+          onClick={() => changeWindow("messages")}
+        >
           <span>
             <Database />
           </span>
