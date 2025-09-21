@@ -45,35 +45,44 @@ function SettingsButton() {
   );
 }
 
-function Footer() {
+function Footer({ currentWindow }: { currentWindow: Window }) {
   return (
     <footer
       className="flex flex-row items-center h-[10%] px-6
     "
     >
       <SocialLinks />
-      <StoreMessagesCheckBox />
+      {currentWindow == "chat" && <StoreMessagesCheckBox />}
     </footer>
   );
 }
 
 function Main() {
+  const [currentWindow, setCurrentWindow] = useState<Window>("chat");
   return (
     <div className="flex-1">
-      <InteractiveChatWindow />
-      <Footer />
+      <InteractiveChatWindow
+        currentWindow={currentWindow}
+        onWindowChange={setCurrentWindow}
+      />
+      <Footer currentWindow={currentWindow} />
     </div>
   );
 }
 
 type Window = "chat" | "messages" | "prompts";
 
-function InteractiveChatWindow() {
-  const [currentWindow, setCurrentWindow] = useState<Window>("chat");
+function InteractiveChatWindow({
+  currentWindow,
+  onWindowChange,
+}: {
+  currentWindow: Window;
+  onWindowChange: (window: Window) => void;
+}) {
   return (
-    <div className="flex h-[90%] items-center justify-center">
+    <div className="flex h-[90%] static items-center justify-center">
       {currentWindow === "chat" ? (
-        <PromptArea changeWindow={setCurrentWindow} />
+        <PromptArea changeWindow={onWindowChange} />
       ) : (
         <StoredMessages />
       )}
