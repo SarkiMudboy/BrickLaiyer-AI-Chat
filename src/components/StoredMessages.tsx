@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Search from "../assets/Search";
-import CheckMark from "../assets/check-mark.svg?react";
+import CheckMark from "../assets/CheckMark";
 
 const messages = [
   {
@@ -49,10 +49,10 @@ function Message({
     <div className="flex flex-col w-full h-32">
       <div className="flex flex-row items-center gap-10 h-11 bg-[#717158] p-2">
         <button
-          className="size-4.5 rounded-sm border border-white"
+          className="flex items-center justify-center size-4.5 rounded-sm border border-white"
           onClick={() => onSelectMessage(message.id)}
         >
-          {isSelected && <CheckMark />}
+          {isSelected && <CheckMark color="#FFFFFF" />}
         </button>
         <span className="font-firamono font-bold text-[16px] truncate">
           {message.title}
@@ -70,15 +70,15 @@ function Message({
   );
 }
 
-function MessageList({ selectedMessages, onSelectMessage }: { selectedMessages: number[]; onSelectMessage: (number[]) => void }) {
-  const [selectedMessages, setSelectedMessages] = useState<number[]>([]);
-
-  function handleSelectAllMessages() {
-    setSelectedMessages(messages.map((msg) => msg.id));
-  }
-
+function MessageList({
+  selectedMessages,
+  onSelectMessage,
+}: {
+  selectedMessages: number[];
+  onSelectMessage: (messages: number[]) => void;
+}) {
   function handleSelectMessage(id: number) {
-    setSelectedMessages([...selectedMessages, id]);
+    onSelectMessage([...selectedMessages, id]);
   }
 
   const messageList = messages.map((msg) => (
@@ -97,6 +97,8 @@ function MessageList({ selectedMessages, onSelectMessage }: { selectedMessages: 
 
 export default function StoredMessages() {
   const [selectedMessages, setSelectedMessages] = useState<number[]>([]);
+  const allMessagesSelected = selectedMessages.length === messages.length;
+  console.log(selectedMessages);
 
   function handleSelectAllMessages() {
     setSelectedMessages(messages.map((msg) => msg.id));
@@ -117,14 +119,19 @@ export default function StoredMessages() {
       </div>
       <div className="flex mt-10 items-center justify-start gap-2.5">
         <button
-          className="flex ml-1 size-5 rounded-sm border border-white"
-          // onClick={handleSelectAllMessages}
-        ></button>
+          className="flex items-center justify-center ml-1 size-5 rounded-sm border border-white"
+          onClick={handleSelectAllMessages}
+        >
+          {allMessagesSelected && <CheckMark color="#FFFFFF" />}
+        </button>
         <span className="font-firacode font-bold">
           {messages.length} messages
         </span>
       </div>
-      <MessageList />
+      <MessageList
+        selectedMessages={selectedMessages}
+        onSelectMessage={setSelectedMessages}
+      />
     </div>
   );
 }

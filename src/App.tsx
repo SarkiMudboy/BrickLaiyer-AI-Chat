@@ -9,7 +9,7 @@ import Pen from "./assets/pen.svg?react";
 import Github from "./assets/github.svg?react";
 import LinkedIn from "./assets/linkedin.svg?react";
 import Twitter from "./assets/twitter.svg?react";
-import CheckMark from "./assets/check-mark.svg?react";
+import CheckMark from "./assets/CheckMark";
 import React, { useRef, useState, type JSX } from "react";
 import { models, type Model } from "./data/models";
 import ArrowRight from "./assets/arrow-right.svg?react";
@@ -98,7 +98,7 @@ function StoreMessagesCheckBox() {
         className="flex items-center justify-center size-5 rounded-sm border border-[#08CB00]"
         onClick={() => setStoreMessages(!storeMessages)}
       >
-        {storeMessages && <CheckMark />}
+        {storeMessages && <CheckMark color="#08CB00" />}
       </button>
       <p className="font-firamono text-[14px]">Store Messages</p>
     </div>
