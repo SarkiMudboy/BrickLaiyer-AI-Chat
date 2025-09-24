@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Search from "../assets/Search";
 import CheckMark from "../assets/CheckMark";
+import Bin from "../assets/trash.svg?react";
 
 const messages = [
   {
@@ -45,19 +46,36 @@ function Message({
   isSelected: boolean;
   onSelectMessage: (messageId: number) => void;
 }) {
+  // console.log(message.id, isSelected);
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <div className="flex flex-col w-full h-32">
-      <div className="flex flex-row items-center gap-10 h-11 bg-[#717158] p-2">
-        <button
-          className="flex items-center justify-center size-4.5 rounded-sm border border-white"
-          onClick={() => onSelectMessage(message.id)}
+    <div
+      className="flex flex-col w-full h-32"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="flex flex-row justify-between bg-[#717158]">
+        <div className="flex flex-row items-center gap-10 h-11 p-2">
+          <button
+            className="flex items-center justify-center size-4.5 rounded-sm border border-white"
+            onClick={() => onSelectMessage(message.id)}
+          >
+            {isSelected && <CheckMark color="#FFFFFF" />}
+          </button>
+          <span className="font-firamono font-bold text-[16px] truncate">
+            {message.title}
+          </span>
+        </div>
+        <span
+          className={`flex items-center justify-center h-[44px] w-[44px] ${
+            isHovered || isSelected ? "opacity-100" : "opacity-0"
+          }`}
         >
-          {isSelected && <CheckMark color="#FFFFFF" />}
-        </button>
-        <span className="font-firamono font-bold text-[16px] truncate">
-          {message.title}
+          <Bin />
         </span>
       </div>
+
       <div className="flex flex-col bg-[#222225] h-38">
         <div className="font-jetbrains p-4 h-13.5 text-[12px] text-wrap truncate text-ellipsis">
           {message.text}
@@ -78,14 +96,22 @@ function MessageList({
   onSelectMessage: (messages: number[]) => void;
 }) {
   function handleSelectMessage(id: number) {
-    onSelectMessage([...selectedMessages, id]);
+    if (selectedMessages.includes(id)) {
+      onSelectMessage(selectedMessages.filter((id) => id != id));
+    } else {
+      onSelectMessage([...selectedMessages, id]);
+    }
   }
+
+  // console.log(selectedMessages);
+  // console.log(selectedMessages.includes(1));
 
   const messageList = messages.map((msg) => (
     <Message
+      key={msg.id}
       message={msg}
-      isSelected={msg.id in selectedMessages}
-      onSelectMessage={handleSelectMessage}
+      isSelected={selectedMessages.includes(msg.id)}
+      onSelectMessage={(id) => handleSelectMessage(id)}
     />
   ));
   return (
@@ -98,10 +124,13 @@ function MessageList({
 export default function StoredMessages() {
   const [selectedMessages, setSelectedMessages] = useState<number[]>([]);
   const allMessagesSelected = selectedMessages.length === messages.length;
-  console.log(selectedMessages);
 
   function handleSelectAllMessages() {
-    setSelectedMessages(messages.map((msg) => msg.id));
+    if (selectedMessages.length < 4) {
+      setSelectedMessages(messages.map((msg) => msg.id));
+    } else {
+      setSelectedMessages([]);
+    }
   }
 
   return (
@@ -130,7 +159,7 @@ export default function StoredMessages() {
       </div>
       <MessageList
         selectedMessages={selectedMessages}
-        onSelectMessage={setSelectedMessages}
+        onSelectMessage={(msg) => setSelectedMessages(msg)}
       />
     </div>
   );
