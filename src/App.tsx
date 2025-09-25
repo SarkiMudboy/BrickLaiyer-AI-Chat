@@ -28,7 +28,7 @@ function NavBar() {
 
 function Logo() {
   return (
-    <span className="inline-flex items-center justify-between space-x-2.5">
+    <span className="absolute left-6 top-8 inline-flex items-center justify-between space-x-2.5">
       <BricksIcon />
       <span className="font-poppins font-semibold text-[14px]">
         Brick-Laiyer
@@ -39,7 +39,7 @@ function Logo() {
 
 function SettingsButton() {
   return (
-    <span className="flex items-center justify-center size-10 hover:rounded-[5px] hover:bg-[#717158] hover:opacity-45">
+    <span className="absolute right-6 top-5 flex items-center justify-center size-10 hover:rounded-[5px] hover:bg-[#717158] hover:opacity-45">
       <Cog />
     </span>
   );
@@ -60,12 +60,12 @@ function Footer({ currentWindow }: { currentWindow: Window }) {
 function Main() {
   const [currentWindow, setCurrentWindow] = useState<Window>("chat");
   return (
-    <div className="flex-1">
+    <div className="flex-1 static">
       <InteractiveChatWindow
         currentWindow={currentWindow}
         onWindowChange={setCurrentWindow}
       />
-      <Footer currentWindow={currentWindow} />
+      {currentWindow == "chat" && <StoreMessagesCheckBox />}
     </div>
   );
 }
@@ -93,7 +93,7 @@ function InteractiveChatWindow({
 function StoreMessagesCheckBox() {
   const [storeMessages, setStoreMessages] = useState(false);
   return (
-    <div className="fixed inline-flex gap-3.5 left-[45%]">
+    <div className="absolute bottom-6 inline-flex gap-3.5 left-[45%]">
       <button
         className="flex items-center justify-center size-5 rounded-sm border border-[#08CB00]"
         onClick={() => setStoreMessages(!storeMessages)}
@@ -118,7 +118,9 @@ function SocialLinks() {
 
   return (
     <div>
-      <ul className="flex items-center justify-center">{links}</ul>
+      <ul className="absolute left-6 bottom-3 flex items-center justify-center gap-2">
+        {links}
+      </ul>
     </div>
   );
 }
@@ -449,9 +451,12 @@ function PromptHistoryItem({
 
 function App() {
   return (
-    <div className="flex flex-col w-screen h-screen box-border bg-[#161619]">
-      <NavBar />
+    <div className="flex flex-col static w-screen h-screen box-border bg-[#161619]">
+      {/* <NavBar /> */}
+      <Logo />
+      <SettingsButton />
       <Main />
+      <SocialLinks />
     </div>
   );
 }

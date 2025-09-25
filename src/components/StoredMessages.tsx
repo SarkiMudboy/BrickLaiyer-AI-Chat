@@ -2,6 +2,7 @@ import { useState } from "react";
 import Search from "../assets/Search";
 import CheckMark from "../assets/CheckMark";
 import Bin from "../assets/trash.svg?react";
+import Pages from "./Pagination";
 
 const messages = [
   {
@@ -134,33 +135,44 @@ export default function StoredMessages() {
   }
 
   return (
-    <div className="flex flex-col w-[45%] fixed top-10 bottom-10">
-      <h2 className="font-firacode font-semibold text-3xl">Stored Messages</h2>
-      <div className="flex w-full h-12 mt-10 rounded-md bg-[#222225] border border-[#66735d]">
-        <span className="flex w-12 justify-center items-center">
-          <Search color="#717158" />
-        </span>
-        <input
-          type="search"
-          placeholder="Search Messages..."
-          className="w-full p-1.5 outline-none font-firacode font-semibold text=[#717158]"
+    <>
+      <div className="flex flex-col w-[45%] absolute top-10 bottom-20">
+        <h2 className="font-firacode font-semibold text-3xl">
+          Stored Messages
+        </h2>
+        <div className="flex w-full h-12 mt-10 rounded-md bg-[#222225] border border-[#66735d]">
+          <span className="flex w-12 justify-center items-center">
+            <Search color="#717158" />
+          </span>
+          <input
+            type="search"
+            placeholder="Search Messages..."
+            className="w-full p-1.5 outline-none font-firacode font-semibold text=[#717158]"
+          />
+        </div>
+        <div className="flex mt-10 items-center justify-start gap-2.5">
+          <button
+            className="flex items-center justify-center ml-1 size-5 rounded-sm border border-white"
+            onClick={handleSelectAllMessages}
+          >
+            {allMessagesSelected && <CheckMark color="#FFFFFF" />}
+          </button>
+          <span className="font-firacode font-bold">
+            {messages.length} messages
+          </span>
+        </div>
+        <MessageList
+          selectedMessages={selectedMessages}
+          onSelectMessage={(msg) => setSelectedMessages(msg)}
         />
       </div>
-      <div className="flex mt-10 items-center justify-start gap-2.5">
-        <button
-          className="flex items-center justify-center ml-1 size-5 rounded-sm border border-white"
-          onClick={handleSelectAllMessages}
-        >
-          {allMessagesSelected && <CheckMark color="#FFFFFF" />}
-        </button>
-        <span className="font-firacode font-bold">
-          {messages.length} messages
-        </span>
-      </div>
-      <MessageList
-        selectedMessages={selectedMessages}
-        onSelectMessage={(msg) => setSelectedMessages(msg)}
+      <Pages
+        pageData={{
+          pages: [1, 2, 3, 4, 10],
+          currentPage: 1,
+          onSelectPage: (pgNum) => console.log(pgNum),
+        }}
       />
-    </div>
+    </>
   );
 }
