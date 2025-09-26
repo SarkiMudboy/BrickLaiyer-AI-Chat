@@ -67,3 +67,11 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.clamp-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* number of lines */
+  line-clamp: 2; /* number of lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

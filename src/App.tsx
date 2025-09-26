@@ -9,11 +9,13 @@ import Pen from "./assets/pen.svg?react";
 import Github from "./assets/github.svg?react";
 import LinkedIn from "./assets/linkedin.svg?react";
 import Twitter from "./assets/twitter.svg?react";
-import CheckMark from "./assets/check-mark.svg?react";
+import CheckMark from "./assets/CheckMark";
 import React, { useRef, useState, type JSX } from "react";
 import { models, type Model } from "./data/models";
 import ArrowRight from "./assets/arrow-right.svg?react";
 import UserFile from "./assets/UserFile";
+
+import StoredMessages from "./components/StoredMessages";
 
 function NavBar() {
   return (
@@ -26,7 +28,7 @@ function NavBar() {
 
 function Logo() {
   return (
-    <span className="inline-flex items-center justify-between space-x-2.5">
+    <span className="absolute left-6 top-8 inline-flex items-center justify-between space-x-2.5">
       <BricksIcon />
       <span className="font-poppins font-semibold text-[14px]">
         Brick-Laiyer
@@ -37,37 +39,53 @@ function Logo() {
 
 function SettingsButton() {
   return (
-    <span className="flex items-center justify-center size-10 hover:rounded-[5px] hover:bg-[#717158] hover:opacity-45">
+    <span className="absolute right-6 top-5 flex items-center justify-center size-10 hover:rounded-[5px] hover:bg-[#717158] hover:opacity-45">
       <Cog />
     </span>
   );
 }
 
-function Footer() {
+function Footer({ currentWindow }: { currentWindow: Window }) {
   return (
     <footer
       className="flex flex-row items-center h-[10%] px-6
     "
     >
       <SocialLinks />
-      <StoreMessagesCheckBox />
+      {currentWindow == "chat" && <StoreMessagesCheckBox />}
     </footer>
   );
 }
 
 function Main() {
+  const [currentWindow, setCurrentWindow] = useState<Window>("chat");
   return (
-    <div className="flex-1">
-      <InteractiveChatWindow />
-      <Footer />
+    <div className="flex-1 static">
+      <InteractiveChatWindow
+        currentWindow={currentWindow}
+        onWindowChange={setCurrentWindow}
+      />
+      {currentWindow == "chat" && <StoreMessagesCheckBox />}
     </div>
   );
 }
 
-function InteractiveChatWindow() {
+type Window = "chat" | "messages" | "prompts";
+
+function InteractiveChatWindow({
+  currentWindow,
+  onWindowChange,
+}: {
+  currentWindow: Window;
+  onWindowChange: (window: Window) => void;
+}) {
   return (
-    <div className="flex h-[90%] items-center justify-center">
-      <PromptArea />
+    <div className="flex h-[90%] static items-center justify-center">
+      {currentWindow === "chat" ? (
+        <PromptArea changeWindow={onWindowChange} />
+      ) : (
+        <StoredMessages />
+      )}
     </div>
   );
 }
@@ -75,12 +93,12 @@ function InteractiveChatWindow() {
 function StoreMessagesCheckBox() {
   const [storeMessages, setStoreMessages] = useState(false);
   return (
-    <div className="fixed inline-flex gap-3.5 left-[45%]">
+    <div className="absolute bottom-6 inline-flex gap-3.5 left-[45%]">
       <button
         className="flex items-center justify-center size-5 rounded-sm border border-[#08CB00]"
         onClick={() => setStoreMessages(!storeMessages)}
       >
-        {storeMessages && <CheckMark />}
+        {storeMessages && <CheckMark color="#08CB00" />}
       </button>
       <p className="font-firamono text-[14px]">Store Messages</p>
     </div>
@@ -100,7 +118,9 @@ function SocialLinks() {
 
   return (
     <div>
-      <ul className="flex items-center justify-center">{links}</ul>
+      <ul className="absolute left-6 bottom-3 flex items-center justify-center gap-2">
+        {links}
+      </ul>
     </div>
   );
 }
@@ -111,7 +131,7 @@ type PromptConfig = {
   file?: File;
 };
 
-function PromptArea() {
+function PromptArea({ changeWindow }: { changeWindow: (arg: Window) => void }) {
   const [promptConfig, setPromptConfig] = useState({
     query: "",
     model: models[0].id,
@@ -132,6 +152,7 @@ function PromptArea() {
           promptOptions={promptConfig}
           onChangeConfig={setPromptConfig}
           addPrompt={handleAddPromptHistory}
+          changeWindow={changeWindow}
         />
         <PromptHistory history={promptHistory} />
       </div>
@@ -156,10 +177,12 @@ function PromptTextBox({
   promptOptions,
   onChangeConfig,
   addPrompt,
+  changeWindow,
 }: {
   promptOptions: PromptConfig;
   onChangeConfig: (config: PromptConfig) => void;
   addPrompt: (prompt: { id: string; text: string }) => void;
+  changeWindow: (arg: Window) => void;
 }) {
   const [fileSelected, setFileSelected] = useState(false);
 
@@ -208,6 +231,7 @@ function PromptTextBox({
             onChangeConfig={onChangeConfig}
             addPrompt={addPrompt}
             onSelectFile={() => setFileSelected(true)}
+            changeWindow={changeWindow}
           />
         </form>
       </div>
@@ -310,11 +334,13 @@ function PromptActions({
   onChangeConfig,
   onSelectFile,
   addPrompt,
+  changeWindow,
 }: {
   promptOptions: PromptConfig;
   onChangeConfig: (config: PromptConfig) => void;
   onSelectFile: () => void;
   addPrompt: (prompt: { id: string; text: string }) => void;
+  changeWindow: (arg: Window) => void;
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -355,7 +381,10 @@ function PromptActions({
           </span>
           <span className="font-firamono">Prompts</span>
         </button>
-        <button className="flex items-center justify-center gap-3 w-[120px] rounded-[4px] hover:bg-[#2A2A2C]">
+        <button
+          className="flex items-center justify-center gap-3 w-[120px] rounded-[4px] hover:bg-[#2A2A2C]"
+          onClick={() => changeWindow("messages")}
+        >
           <span>
             <Database />
           </span>
@@ -422,9 +451,12 @@ function PromptHistoryItem({
 
 function App() {
   return (
-    <div className="flex flex-col w-screen h-screen box-border bg-[#161619]">
-      <NavBar />
+    <div className="flex flex-col static w-screen h-screen box-border bg-[#161619]">
+      {/* <NavBar /> */}
+      <Logo />
+      <SettingsButton />
       <Main />
+      <SocialLinks />
     </div>
   );
 }
