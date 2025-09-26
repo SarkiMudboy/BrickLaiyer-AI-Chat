@@ -1,32 +1,26 @@
 import ArrowRight from "../assets/arrow-right.svg?react";
 import ArrowLeft from "../assets/arrow-left.svg?react";
 
-class Pages {
-  private data: any[];
-  private pageSize: number;
-  public currentPage: number;
-
-  constructor(data: any[], pageSize = 10) {
-    this.data = data;
-    this.currentPage = 1;
-    this.pageSize = pageSize;
+export function getPageNumberArray(start: number, length: number): number[] {
+  // start = direction === "left" ? start - 1 : start + 1; this will be done by the event handler on the buttons and passed here
+  // tie the start to a state var so clicking the arrow btns triggers a rerender
+  if (start + 2 < length && start > 1) {
+    return Array.from({ length: 3 }, (_, i) => start + i);
   }
+  return [];
+}
 
-  getPageLength() {
-    return this.data.length / this.pageSize;
+export function paginate<T>(data: T[], pageSize: number, pageNum: number): T[] {
+  const numOfPages =
+    Math.floor(data.length / pageSize) + (data.length % pageSize);
+
+  if (!pageNum || pageNum > numOfPages) {
+    throw new Error("Page out of range");
   }
+  const start = (pageNum - 1) * pageSize;
+  const stop = start + pageSize;
 
-  getPage(page: number) {
-    page = page ? page : this.currentPage + 1;
-
-    if (0 > page || page > this.data.length / this.pageSize) {
-      throw new Error("Page out of range");
-    }
-    const start = (page - 1) * this.pageSize;
-    const stop = start + this.pageSize;
-
-    return this.data.slice(start, stop);
-  }
+  return data.slice(start, stop);
 }
 
 function PageButton({
@@ -75,9 +69,7 @@ interface PageProps {
 
 // array [ 1, 2, 3, "...", 4]
 
-export default function Page({ pageData }: { pageData: PageProps }) {
-  let columnLength = pageData.pages.length + 2;
-
+export function Page({ pageData }: { pageData: PageProps }) {
   const pages = pageData.pages.map((page) => (
     <PageButton
       key={page}
@@ -86,20 +78,6 @@ export default function Page({ pageData }: { pageData: PageProps }) {
       onSelect={() => pageData.onSelectPage(page)}
     />
   ));
-
-  // if (pageData.pageLength <= 5) {
-  //   columnLength = pageData.pageLength + 2;
-
-  //   const entries = [...Array(pageData.pageLength + 1).keys()];
-  //   pages = entries.map((page) => (
-  //     <PageButton
-  //       key={page}
-  //       pageNumber={page}
-  //       selected={page === pageData.currentPage}
-  //       onSelect={() => pageData.onSelectPage(page)}
-  //     />
-  //   ));
-  // }
 
   return (
     <div className="flex flex-row absolute bottom-5 gap-1.5">

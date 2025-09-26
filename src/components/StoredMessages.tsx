@@ -2,7 +2,7 @@ import { useState } from "react";
 import Search from "../assets/Search";
 import CheckMark from "../assets/CheckMark";
 import Bin from "../assets/trash.svg?react";
-import Pages from "./Pagination";
+import { Page } from "./Pagination";
 
 const messages = [
   {
@@ -166,7 +166,7 @@ export default function StoredMessages() {
           onSelectMessage={(msg) => setSelectedMessages(msg)}
         />
       </div>
-      <Pages
+      <Page
         pageData={{
           pages: [1, 2, 3, 4, 10],
           currentPage: 1,
